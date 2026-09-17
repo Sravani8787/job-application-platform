@@ -1,0 +1,54 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@example.com",
+      "password": "123456"
+    },
+    {
+      "email": "test@example.com",
+      "password": "12345678",
+      "id": "JNft8ahc-a8"
+    },
+    {
+      "email": "test@admin.com",
+      "password": "123456",
+      "id": "jLhPhUWjUEI"
+    }
+  ],
+  "applications": [
+    {
+      "id": "4",
+      "company": "Deloitte",
+      "position": "Data Analyst",
+      "location": "Manchester, UK",
+      "dateApplied": "25 Aug 2026",
+      "status": "Offer"
+    },
+    {
+      "id": "2YBMweoy-4k",
+      "company": "IBM",
+      "position": "Application Developer",
+      "location": "India",
+      "dateApplied": "2026-05-26",
+      "status": "Offer"
+    },
+    {
+      "id": "BAO8BK1G8wo",
+      "company": "IBM",
+      "position": "Application Developer",
+      "location": "India",
+      "dateApplied": "2026-05-26",
+      "status": "Applied"
+    },
+    {
+      "id": "gUHpAtck5tA",
+      "company": "IBM",
+      "position": "JUNIOR Application Developer",
+      "location": "India",
+      "dateApplied": "2026-05-26",
+      "status": "Interview"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
