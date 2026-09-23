@@ -14,40 +14,66 @@
       "email": "test@admin.com",
       "password": "123456",
       "id": "jLhPhUWjUEI"
+    },
+    {
+      "email": "test1@admin.com",
+      "password": "123456",
+      "id": "69dTxP5o-N8"
     }
   ],
   "applications": [
     {
       "id": "4",
       "company": "Deloitte",
-      "position": "Data Analyst",
+      "jobTitle": "Data Analyst",
       "location": "Manchester, UK",
-      "dateApplied": "25 Aug 2026",
+      "dateApplied": "2026-08-25",
       "status": "Offer"
     },
     {
       "id": "2YBMweoy-4k",
       "company": "IBM",
-      "position": "Application Developer",
+      "jobTitle": "Application Developer",
       "location": "India",
       "dateApplied": "2026-05-26",
       "status": "Offer"
     },
     {
-      "id": "BAO8BK1G8wo",
-      "company": "IBM",
-      "position": "Application Developer",
-      "location": "India",
-      "dateApplied": "2026-05-26",
-      "status": "Applied"
-    },
-    {
       "id": "gUHpAtck5tA",
       "company": "IBM",
-      "position": "JUNIOR Application Developer",
+      "jobTitle": "JUNIOR Application Developer",
       "location": "India",
       "dateApplied": "2026-05-26",
       "status": "Interview"
+    },
+    {
+      "company": "IBM",
+      "jobTitle": "F|rontend Developer",
+      "location": "London, UK",
+      "salary": 45000,
+      "dateApplied": "2026-09-09",
+      "status": "Applied",
+      "recruiterName": "Sarah",
+      "interviewDate": "2026-09-26",
+      "id": "FkKF7AeD1XQ"
+    },
+    {
+      "company": "Google",
+      "jobTitle": "backend developer",
+      "location": "MK",
+      "salary": 50000,
+      "dateApplied": "2026-09-08",
+      "status": "Final Interview",
+      "interviewDate": "2026-09-30",
+      "id": "qwS2eGzIm-k"
+    },
+    {
+      "company": "WIPRO",
+      "jobTitle": "Senior Java Developer",
+      "location": "London",
+      "dateApplied": "2026-09-23",
+      "status": "Screening",
+      "id": "lObtoC0n8t0"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

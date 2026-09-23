@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const USERS_API_URL = "http://localhost:3001/users";
+import { registerUser } from "../services/authService";
 
 function Register() {
   const navigate = useNavigate();
@@ -10,6 +8,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,8 +21,15 @@ function Register() {
     setError("");
     setSuccess("");
 
-    if (!email.trim() || !password || !confirmPassword) {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail || !password || !confirmPassword) {
       setError("Please fill in all fields.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
 
@@ -35,25 +41,7 @@ function Register() {
     try {
       setLoading(true);
 
-      const existingUsers = await axios.get(
-        USERS_API_URL
-      );
-
-      const emailExists = existingUsers.data.some(
-        (user: { email: string }) =>
-          user.email.toLowerCase() ===
-          email.trim().toLowerCase()
-      );
-
-      if (emailExists) {
-        setError("An account with this email already exists.");
-        return;
-      }
-
-      await axios.post(USERS_API_URL, {
-        email: email.trim(),
-        password,
-      });
+      await registerUser(trimmedEmail, password);
 
       setSuccess(
         "Account created successfully. Redirecting to login..."
@@ -64,7 +52,12 @@ function Register() {
       }, 1000);
     } catch (error) {
       console.error("Registration error:", error);
-      setError("Unable to create account.");
+
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Unable to create account.");
+      }
     } finally {
       setLoading(false);
     }
@@ -81,7 +74,9 @@ function Register() {
 
         <form onSubmit={handleSubmit}>
           <div className="register-form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              Email
+            </label>
 
             <input
               id="email"
@@ -91,11 +86,15 @@ function Register() {
               onChange={(event) =>
                 setEmail(event.target.value)
               }
+              disabled={loading}
+              autoComplete="email"
             />
           </div>
 
           <div className="register-form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">
+              Password
+            </label>
 
             <input
               id="password"
@@ -105,6 +104,8 @@ function Register() {
               onChange={(event) =>
                 setPassword(event.target.value)
               }
+              disabled={loading}
+              autoComplete="new-password"
             />
           </div>
 
@@ -121,17 +122,25 @@ function Register() {
               onChange={(event) =>
                 setConfirmPassword(event.target.value)
               }
+              disabled={loading}
+              autoComplete="new-password"
             />
           </div>
 
           {error && (
-            <p className="register-error">
+            <p
+              className="register-error"
+              role="alert"
+            >
               {error}
             </p>
           )}
 
           {success && (
-            <p className="register-success">
+            <p
+              className="register-success"
+              role="status"
+            >
               {success}
             </p>
           )}
@@ -141,16 +150,20 @@ function Register() {
             className="register-button"
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading
+              ? "Creating account..."
+              : "Register"}
           </button>
         </form>
 
         <p className="login-link-text">
           Already have an account?{" "}
+
           <button
             type="button"
             className="login-link"
             onClick={() => navigate("/login")}
+            disabled={loading}
           >
             Login
           </button>

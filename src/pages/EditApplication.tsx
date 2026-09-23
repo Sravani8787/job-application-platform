@@ -1,299 +1,208 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
+import ApplicationForm from "../components/forms/ApplicationForm";
 import type {
   Application,
-  ApplicationStatus,
+  CreateApplicationInput,
 } from "../types/Application";
+
 import {
-  getApplications,
-  updateApplication,
-} from "../services/applicationService";
+  editApplication,
+  fetchApplications,
+} from "../store/applicationsSlice";
+
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../store/hooks";
 
 function EditApplication() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const { id } = useParams();
 
-  const [application, setApplication] =
-    useState<Application | null>(null);
+  const {
+    items: applications,
+    loading,
+    error,
+  } = useAppSelector(
+    (state) => state.applications
+  );
 
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [location, setLocation] = useState("");
-  const [dateApplied, setDateApplied] = useState("");
-  const [status, setStatus] =
-    useState<ApplicationStatus>("Applied");
+  /*
+   * Derive the application directly
+   * from Redux instead of duplicating it
+   * in local component state.
+   */
+  const application: Application | null =
+    applications.find(
+      (item) => item.id === id
+    ) ?? null;
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
+  /*
+   * If applications haven't been loaded yet,
+   * fetch them from the API.
+   */
   useEffect(() => {
-  const loadApplication = async () => {
     if (!id) {
-      setError("Invalid application ID.");
-      setLoading(false);
+      return;
+    }
+
+    if (applications.length === 0) {
+      dispatch(fetchApplications());
+    }
+  }, [
+    id,
+    applications.length,
+    dispatch,
+  ]);
+
+  /*
+   * Update application.
+   */
+  const handleSubmit = async (
+    applicationData: CreateApplicationInput
+  ) => {
+    if (!application) {
       return;
     }
 
     try {
-      const applications = await getApplications();
+      await dispatch(
+        editApplication({
+          id: application.id,
+          application: applicationData,
+        })
+      ).unwrap();
 
-      const foundApplication = applications.find(
-        (application) =>
-          String(application.id) === String(id)
-      );
-
-      if (!foundApplication) {
-        setError("Application not found.");
-        return;
-      }
-
-      setApplication(foundApplication);
-
-      setCompany(foundApplication.company);
-      setPosition(foundApplication.position);
-      setLocation(foundApplication.location);
-      setDateApplied(foundApplication.dateApplied);
-      setStatus(foundApplication.status);
-    } catch (error) {
-      console.error(
-        "Error loading application:",
-        error
-      );
-
-      setError(
-        "Unable to load this application."
-      );
-    } finally {
-      setLoading(false);
+      navigate("/applications");
+    } catch {
+      // Error is displayed by ApplicationForm.
     }
   };
 
-  loadApplication();
-}, [id]);
-
-
-  const handleSubmit = async (
-  event: React.FormEvent<HTMLFormElement>
-) => {
-  event.preventDefault();
-
-  setError("");
-
-  if (!company.trim()) {
-    setError("Company name is required.");
-    return;
-  }
-
-  if (!position.trim()) {
-    setError("Job position is required.");
-    return;
-  }
-
-  if (!location.trim()) {
-    setError("Location is required.");
-    return;
-  }
-
-  if (!dateApplied) {
-    setError("Application date is required.");
-    return;
-  }
-
-  if (!status) {
-    setError("Application status is required.");
-    return;
-  }
-
+  /*
+   * Invalid ID.
+   */
   if (!id) {
-    setError("Application ID is missing.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    await updateApplication(id, {
-      company: company.trim(),
-      position: position.trim(),
-      location: location.trim(),
-      dateApplied,
-      status,
-    });
-
-    navigate("/applications");
-  } catch (error) {
-    console.error("Error updating application:", error);
-    setError("Unable to update application.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  if (loading) {
     return (
-      <div className="add-application-page">
-        <div className="form-card">
-          <h2>Loading application...</h2>
-        </div>
+      <div className="page-error">
+        <h2>Invalid application</h2>
+
+        <p>
+          No application ID was provided.
+        </p>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/applications")
+          }
+        >
+          Back to Applications
+        </button>
       </div>
     );
   }
 
-  if (!application) {
+  /*
+   * Loading.
+   */
+  if (
+    loading &&
+    applications.length === 0
+  ) {
     return (
-      <div className="add-application-page">
-        <div className="form-card">
-          <h2>Application not found</h2>
+      <div className="page-loading">
+        <p>
+          Loading application...
+        </p>
+      </div>
+    );
+  }
 
+  /*
+   * Application not found.
+   */
+  if (
+    !loading &&
+    !application
+  ) {
+    return (
+      <div className="page-error">
+        <h2>
+          Application not found
+        </h2>
+
+        <p>
+          {error ||
+            "The application you're looking for does not exist."}
+        </p>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/applications")
+          }
+        >
+          Back to Applications
+        </button>
+      </div>
+    );
+  }
+
+  /*
+   * Prevent rendering before data exists.
+   */
+  if (!application) {
+    return null;
+  }
+
+  return (
+    <div className="edit-application-page">
+      <div className="edit-application-heading">
+        <div>
+          <h1>
+            Edit Application
+          </h1>
+
+          <p>
+            Update your job application
+            details.
+          </p>
+        </div>
+      </div>
+
+      <div className="form-card">
+        <ApplicationForm
+          initialData={application}
+          onSubmit={handleSubmit}
+          submitLabel={
+            loading
+              ? "Updating Application..."
+              : "Update Application"
+          }
+          loading={loading}
+          error={error}
+        />
+
+        <div className="form-actions">
           <button
             type="button"
             className="cancel-button"
             onClick={() =>
               navigate("/applications")
             }
+            disabled={loading}
           >
-            Back to Applications
+            Cancel
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="add-application-page">
-      <div className="add-application-heading">
-        <div>
-          <h1>Edit Application</h1>
-
-          <p>
-            Update the details of your job application.
-          </p>
-        </div>
-      </div>
-
-      <div className="form-card">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="company">
-              Company
-            </label>
-
-            <input
-              id="company"
-              type="text"
-              value={company}
-              onChange={(event) =>
-                setCompany(event.target.value)
-              }
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="position">
-              Position
-            </label>
-
-            <input
-              id="position"
-              type="text"
-              value={position}
-              onChange={(event) =>
-                setPosition(event.target.value)
-              }
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="location">
-              Location
-            </label>
-
-            <input
-              id="location"
-              type="text"
-              value={location}
-              onChange={(event) =>
-                setLocation(event.target.value)
-              }
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="dateApplied">
-              Date Applied
-            </label>
-
-            <input
-              id="dateApplied"
-              type="date"
-              value={dateApplied}
-              onChange={(event) =>
-                setDateApplied(event.target.value)
-              }
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="status">
-              Status
-            </label>
-
-            <select
-              id="status"
-              value={status}
-              onChange={(event) =>
-                setStatus(
-                  event.target.value as ApplicationStatus
-                )
-              }
-            >
-              <option value="Applied">
-                Applied
-              </option>
-
-              <option value="Interview">
-                Interview
-              </option>
-
-              <option value="Offer">
-                Offer
-              </option>
-
-              <option value="Rejected">
-                Rejected
-              </option>
-            </select>
-          </div>
-
-          {error && (
-            <p className="form-error">
-              {error}
-            </p>
-          )}
-
-          <div className="form-actions">
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() =>
-                navigate("/applications")
-              }
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              className="save-button"
-            >
-              Update Application
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

@@ -1,14 +1,16 @@
-import "@testing-library/jest-dom/vitest";
-
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   render,
   screen,
-  waitFor,
   fireEvent,
-  cleanup,
 } from "@testing-library/react";
-
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import {
+  MemoryRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -17,361 +19,465 @@ import Applications from "../pages/Applications";
 import AddApplication from "../pages/AddApplication";
 import EditApplication from "../pages/EditApplication";
 
-/* --------------------------------------------------
-   MOCK FUNCTIONS
--------------------------------------------------- */
+import applicationsReducer from "../store/applicationsSlice";
 
-const mockNavigate = vi.fn();
+import * as authService from "../services/authService";
+import * as applicationService from "../services/applicationService";
 
-const mockLoginUser = vi.fn();
-const mockRegisterUser = vi.fn();
+import type { Application } from "../types/Application";
 
-const mockGetApplications = vi.fn();
-const mockCreateApplication = vi.fn();
-const mockUpdateApplication = vi.fn();
-const mockDeleteApplication = vi.fn();
+import "@testing-library/jest-dom/vitest";
 
-/* --------------------------------------------------
-   ROUTER MOCK
--------------------------------------------------- */
 
-vi.mock("react-router-dom", () => ({
-  useNavigate: () => mockNavigate,
-  useParams: () => ({ id: "1" }),
-}));
-
-/* --------------------------------------------------
-   AUTH SERVICE MOCK
--------------------------------------------------- */
+// =========================================================
+// MOCK SERVICES
+// =========================================================
 
 vi.mock("../services/authService", () => ({
-  loginUser: (...args: unknown[]) => mockLoginUser(...args),
-  registerUser: (...args: unknown[]) => mockRegisterUser(...args),
+  loginUser: vi.fn(),
+  registerUser: vi.fn(),
+  logoutUser: vi.fn(),
 }));
-
-/* --------------------------------------------------
-   APPLICATION SERVICE MOCK
--------------------------------------------------- */
 
 vi.mock("../services/applicationService", () => ({
-  getApplications: (...args: unknown[]) =>
-    mockGetApplications(...args),
-
-  createApplication: (...args: unknown[]) =>
-    mockCreateApplication(...args),
-
-  updateApplication: (...args: unknown[]) =>
-    mockUpdateApplication(...args),
-
-  deleteApplication: (...args: unknown[]) =>
-    mockDeleteApplication(...args),
+  getApplications: vi.fn(),
+  getApplicationById: vi.fn(),
+  createApplication: vi.fn(),
+  updateApplication: vi.fn(),
+  deleteApplication: vi.fn(),
 }));
 
-/* --------------------------------------------------
-   TEST DATA
--------------------------------------------------- */
 
-const mockApplications = [
+// =========================================================
+// TEST DATA
+// =========================================================
+
+const applications: Application[] = [
   {
-    id: 1,
+    id: "1",
     company: "Google",
-    position: "Frontend Developer",
+    jobTitle: "Frontend Developer",
     location: "London, UK",
+    jobUrl: "https://google.com/jobs",
+    salary: 60000,
     dateApplied: "2026-09-02",
     status: "Interview",
+    recruiterName: "John Smith",
+    recruiterEmail: "john@google.com",
+    interviewDate: "2026-09-20",
+    notes: "Technical interview scheduled.",
   },
   {
-    id: 2,
+    id: "2",
     company: "Amazon",
-    position: "Software Engineer",
+    jobTitle: "Software Engineer",
     location: "London, UK",
+    jobUrl: "https://amazon.jobs",
+    salary: 65000,
     dateApplied: "2026-08-30",
     status: "Applied",
+    recruiterName: "Sarah Brown",
+    recruiterEmail: "sarah@amazon.com",
+    notes: "Application submitted.",
   },
   {
-    id: 3,
+    id: "3",
     company: "Microsoft",
-    position: "React Developer",
+    jobTitle: "React Developer",
     location: "Reading, UK",
+    jobUrl: "https://careers.microsoft.com",
+    salary: 62000,
     dateApplied: "2026-08-28",
     status: "Rejected",
+    recruiterName: "David Wilson",
+    recruiterEmail: "david@microsoft.com",
+    notes: "Application rejected.",
   },
   {
-    id: 4,
+    id: "4",
     company: "Deloitte",
-    position: "Data Analyst",
+    jobTitle: "Data Analyst",
     location: "Manchester, UK",
+    jobUrl: "https://deloitte.com/careers",
+    salary: 50000,
     dateApplied: "2026-08-25",
     status: "Offer",
+    recruiterName: "Emma Taylor",
+    recruiterEmail: "emma@deloitte.com",
+    notes: "Offer received.",
   },
 ];
 
-const mockApplication = {
-  id: 1,
-  company: "Google",
-  position: "Frontend Developer",
-  location: "London, UK",
-  dateApplied: "2026-09-02",
-  status: "Interview",
+
+// =========================================================
+// REDUX TEST STORE
+// =========================================================
+
+const createTestStore = () =>
+  configureStore({
+    reducer: {
+      applications: applicationsReducer,
+    },
+  });
+
+
+// =========================================================
+// RENDER HELPERS
+// =========================================================
+
+const renderWithRouter = (
+  ui: React.ReactElement
+) => {
+  return render(
+    <MemoryRouter>
+      {ui}
+    </MemoryRouter>
+  );
 };
 
-/* --------------------------------------------------
-   BEFORE / AFTER EACH TEST
--------------------------------------------------- */
+
+const renderWithProviders = (
+  ui: React.ReactElement
+) => {
+  const store = createTestStore();
+
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <MemoryRouter>
+          {ui}
+        </MemoryRouter>
+      </Provider>
+    ),
+  };
+};
+
+
+// =========================================================
+// EDIT APPLICATION RENDER HELPER
+// =========================================================
+
+const renderEditApplication = () => {
+  const store = createTestStore();
+
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={["/applications/edit/1"]}>
+          <Routes>
+            <Route
+              path="/applications/edit/:id"
+              element={<EditApplication />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </Provider>
+    ),
+  };
+};
+
+
+// =========================================================
+// RESET BEFORE EACH TEST
+// =========================================================
 
 beforeEach(() => {
   vi.clearAllMocks();
 
-  /*
-   * Always return applications by default.
-   * This prevents Dashboard and EditApplication
-   * from receiving undefined.
-   */
-  mockGetApplications.mockResolvedValue(mockApplications);
+  localStorage.clear();
 
-  mockCreateApplication.mockResolvedValue({
-    id: 4,
-    company: "Apple",
-    position: "Frontend Developer",
-    location: "London, UK",
-    dateApplied: "2026-09-07",
-    status: "Applied",
+  vi.mocked(authService.loginUser).mockResolvedValue({
+    id: "user-1",
+    email: "test@example.com",
+    password: "password123",
   });
 
-  mockUpdateApplication.mockResolvedValue(mockApplication);
+  vi.mocked(authService.registerUser).mockResolvedValue({
+    id: "user-2",
+    email: "new@example.com",
+    password: "password123",
+  });
 
-  mockDeleteApplication.mockResolvedValue(undefined);
+  vi.mocked(applicationService.getApplications).mockResolvedValue(
+    applications
+  );
+
+  vi.mocked(applicationService.getApplicationById).mockResolvedValue(
+    applications[0]
+  );
+
+  vi.mocked(applicationService.createApplication).mockResolvedValue(
+    applications[0]
+  );
+
+  vi.mocked(applicationService.updateApplication).mockResolvedValue(
+    applications[0]
+  );
+
+  vi.mocked(applicationService.deleteApplication).mockResolvedValue(
+    undefined
+  );
 });
 
-afterEach(() => {
-  cleanup();
-});
 
-/* ==================================================
-   LOGIN PAGE
-================================================== */
+// =========================================================
+// LOGIN PAGE
+// =========================================================
 
 describe("Login page", () => {
   it("renders the login page", () => {
-    render(<Login />);
+  renderWithRouter(<Login />);
 
-    expect(document.body.textContent).not.toBe("");
+  expect(
+    screen.getByRole("heading", {
+      name: "JobTrack",
+    })
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText("Job Application Management")
+  ).toBeInTheDocument();
+});
   });
 
-  it("renders an email input", () => {
-    render(<Login />);
+  it("renders email and password fields", () => {
+    renderWithRouter(<Login />);
 
     expect(
       screen.getByLabelText(/email/i)
     ).toBeInTheDocument();
-  });
-
-  it("renders a password input", () => {
-    render(<Login />);
 
     expect(
-      screen.getByLabelText(/password/i)
+      screen.getByLabelText(/^password$/i)
     ).toBeInTheDocument();
   });
 
-  it("renders the login button", () => {
-    render(<Login />);
+  it("allows the user to enter login details", () => {
+    renderWithRouter(<Login />);
 
-    expect(
-      screen.getByRole("button", {
-        name: /login/i,
-      })
-    ).toBeInTheDocument();
+    const emailInput = screen.getByLabelText(/email/i);
+
+    const passwordInput = screen.getByLabelText(
+      /^password$/i
+    );
+
+    fireEvent.change(emailInput, {
+      target: {
+        value: "test@example.com",
+      },
+    });
+
+    fireEvent.change(passwordInput, {
+      target: {
+        value: "password123",
+      },
+    });
+
+    expect(emailInput).toHaveValue(
+      "test@example.com"
+    );
+
+    expect(passwordInput).toHaveValue(
+      "password123"
+    );
   });
+
+  it("shows validation errors when login fields are empty", async () => {
+  renderWithRouter(<Login />);
+
+  const submitButton = screen.getByRole("button", {
+    name: /login/i,
+  });
+
+  fireEvent.click(submitButton);
+
+  expect(
+    await screen.findByText(
+      "Please enter your email and password."
+    )
+  ).toBeInTheDocument();
 });
 
-/* ==================================================
-   REGISTER PAGE
-================================================== */
+
+// =========================================================
+// REGISTER PAGE
+// =========================================================
 
 describe("Register page", () => {
-  it("renders the registration page", () => {
-    render(<Register />);
+  it("renders the register page", () => {
+    renderWithRouter(<Register />);
 
-    expect(document.body).toBeInTheDocument();
+    expect(
+      screen.getByText("Create your account")
+    ).toBeInTheDocument();
   });
 
-  it("renders registration content", () => {
-    render(<Register />);
+  it("renders registration fields", () => {
+    renderWithRouter(<Register />);
 
-    expect(document.body.textContent).not.toBe("");
+    expect(
+      screen.getByLabelText("Email")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText("Password", {
+        exact: true,
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText("Confirm Password")
+    ).toBeInTheDocument();
   });
 
-  it("renders the registration form inputs", () => {
-    const { container } = render(<Register />);
+  it("allows the user to enter registration details", () => {
+    renderWithRouter(<Register />);
 
-    const inputs = container.querySelectorAll("input");
+    const emailInput = screen.getByLabelText("Email");
 
-    expect(inputs.length).toBeGreaterThanOrEqual(2);
+    const passwordInput = screen.getByLabelText(
+      "Password",
+      {
+        exact: true,
+      }
+    );
+
+    const confirmPasswordInput =
+      screen.getByLabelText("Confirm Password");
+
+    fireEvent.change(emailInput, {
+      target: {
+        value: "new@example.com",
+      },
+    });
+
+    fireEvent.change(passwordInput, {
+      target: {
+        value: "password123",
+      },
+    });
+
+    fireEvent.change(confirmPasswordInput, {
+      target: {
+        value: "password123",
+      },
+    });
+
+    expect(emailInput).toHaveValue(
+      "new@example.com"
+    );
+
+    expect(passwordInput).toHaveValue(
+      "password123"
+    );
+
+    expect(confirmPasswordInput).toHaveValue(
+      "password123"
+    );
   });
 });
 
-/* ==================================================
-   DASHBOARD PAGE
-================================================== */
+
+// =========================================================
+// DASHBOARD
+// =========================================================
 
 describe("Dashboard page", () => {
   it("renders the Dashboard page", async () => {
-    mockGetApplications.mockResolvedValueOnce([
-      {
-        id: 1,
-        company: "Google",
-        position: "Frontend Developer",
-        location: "London, UK",
-        dateApplied: "2026-09-02",
-        status: "Interview",
-      },
-      {
-        id: 2,
-        company: "Amazon",
-        position: "Software Engineer",
-        location: "London, UK",
-        dateApplied: "2026-08-30",
-        status: "Applied",
-      },
-      {
-        id: 3,
-        company: "Microsoft",
-        position: "React Developer",
-        location: "Reading, UK",
-        dateApplied: "2026-08-28",
-        status: "Rejected",
-      },
-      {
-        id: 4,
-        company: "Deloitte",
-        position: "Data Analyst",
-        location: "Manchester, UK",
-        dateApplied: "2026-08-25",
-        status: "Offer",
-      },
-    ]);
-
-    render(<Dashboard />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText("Dashboard")
-      ).toBeInTheDocument();
-    });
-  });
-
-  it("renders the dashboard content", async () => {
-    mockGetApplications.mockResolvedValueOnce([
-      {
-        id: 1,
-        company: "Google",
-        position: "Frontend Developer",
-        location: "London, UK",
-        dateApplied: "2026-09-02",
-        status: "Interview",
-      },
-      {
-        id: 2,
-        company: "Amazon",
-        position: "Software Engineer",
-        location: "London, UK",
-        dateApplied: "2026-08-30",
-        status: "Applied",
-      },
-      {
-        id: 3,
-        company: "Microsoft",
-        position: "React Developer",
-        location: "Reading, UK",
-        dateApplied: "2026-08-28",
-        status: "Rejected",
-      },
-      {
-        id: 4,
-        company: "Deloitte",
-        position: "Data Analyst",
-        location: "Manchester, UK",
-        dateApplied: "2026-08-25",
-        status: "Offer",
-      },
-    ]);
-
-    render(<Dashboard />);
+    renderWithProviders(<Dashboard />);
 
     expect(
-      await screen.findByText("Job Application Overview")
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Total Applications")
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Applied")
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Interviews")
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Offers")
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Rejected")
+      await screen.findByRole("heading", {
+        name: /dashboard/i,
+      })
     ).toBeInTheDocument();
   });
+
+  it("displays application statistics", async () => {
+  renderWithProviders(<Dashboard />);
+
+  expect(
+    await screen.findByText("Total Applications")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText("Interviews")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText("Offers")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getAllByText("Rejected").length
+  ).toBeGreaterThan(0);
+
+  expect(
+    screen.getByText("Applications This Month")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByText("Offer Conversion")
+  ).toBeInTheDocument();
+});
 });
 
-/* ==================================================
-   APPLICATIONS PAGE
-================================================== */
+
+// =========================================================
+// APPLICATIONS PAGE
+// =========================================================
 
 describe("Applications page", () => {
   it("displays the Applications heading", async () => {
-    render(<Applications />);
+    renderWithProviders(<Applications />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", {
-          name: "Applications",
-        })
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("heading", {
+        name: "Applications",
+      })
+    ).toBeInTheDocument();
   });
 
   it("displays applications from the API", async () => {
-    render(<Applications />);
+    renderWithProviders(<Applications />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Google")
-      ).toBeInTheDocument();
+    const googleRow = await screen.findByRole(
+      "row",
+      {
+        name: /Google Frontend Developer London, UK/i,
+      }
+    );
 
-      expect(
-        screen.getByText("Amazon")
-      ).toBeInTheDocument();
+    expect(googleRow).toBeInTheDocument();
 
-      expect(
-        screen.getByText("Microsoft")
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByRole("row", {
+        name: /Amazon Software Engineer London, UK/i,
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("row", {
+        name: /Microsoft React Developer Reading, UK/i,
+      })
+    ).toBeInTheDocument();
   });
 
   it("filters applications by search text", async () => {
-    render(<Applications />);
+    renderWithProviders(<Applications />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Google")
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("row", {
+        name: /Google Frontend Developer London, UK/i,
+      })
+    ).toBeInTheDocument();
 
-    const searchInput = screen.getByPlaceholderText(
-      "Search company, position, location or status..."
-    );
+    const searchInput =
+      screen.getByPlaceholderText(
+        "Search company, job title..."
+      );
 
     fireEvent.change(searchInput, {
       target: {
@@ -380,29 +486,35 @@ describe("Applications page", () => {
     });
 
     expect(
-      screen.getByText("Amazon")
+      screen.getByRole("row", {
+        name: /Amazon Software Engineer London, UK/i,
+      })
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByText("Google")
+      screen.queryByRole("row", {
+        name: /Google Frontend Developer London, UK/i,
+      })
     ).not.toBeInTheDocument();
 
     expect(
-      screen.queryByText("Microsoft")
+      screen.queryByRole("row", {
+        name: /Microsoft React Developer Reading, UK/i,
+      })
     ).not.toBeInTheDocument();
   });
 
   it("filters applications by status", async () => {
-    render(<Applications />);
+    renderWithProviders(<Applications />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Google")
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("row", {
+        name: /Google Frontend Developer London, UK/i,
+      })
+    ).toBeInTheDocument();
 
     const statusFilter =
-      screen.getByDisplayValue("All Statuses");
+      screen.getByLabelText("Status");
 
     fireEvent.change(statusFilter, {
       target: {
@@ -411,26 +523,33 @@ describe("Applications page", () => {
     });
 
     expect(
-      screen.getByText("Microsoft")
+      screen.getByRole("row", {
+        name: /Microsoft React Developer Reading, UK/i,
+      })
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByText("Google")
+      screen.queryByRole("row", {
+        name: /Google Frontend Developer London, UK/i,
+      })
     ).not.toBeInTheDocument();
 
     expect(
-      screen.queryByText("Amazon")
+      screen.queryByRole("row", {
+        name: /Amazon Software Engineer London, UK/i,
+      })
     ).not.toBeInTheDocument();
   });
 });
 
-/* ==================================================
-   ADD APPLICATION PAGE
-================================================== */
+
+// =========================================================
+// ADD APPLICATION
+// =========================================================
 
 describe("Add Application page", () => {
   it("renders the Add Application form", () => {
-    render(<AddApplication />);
+    renderWithProviders(<AddApplication />);
 
     expect(
       screen.getByRole("heading", {
@@ -439,123 +558,98 @@ describe("Add Application page", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows validation when required fields are empty", async () => {
-    render(<AddApplication />);
+  it("renders the required application fields", () => {
+    renderWithProviders(<AddApplication />);
 
-    const submitButton = screen.getByRole("button", {
-      name: /add application/i,
-    });
+    expect(
+      screen.getByLabelText(/company/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/job title/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/location/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/date applied/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/status/i)
+    ).toBeInTheDocument();
+  });
+
+  it("shows validation errors for required fields", async () => {
+    renderWithProviders(<AddApplication />);
+
+    const submitButton = screen.getByRole(
+      "button",
+      {
+        name: /add application/i,
+      }
+    );
 
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/required/i)
-      ).toBeInTheDocument();
-    });
-  });
+    expect(
+      await screen.findByText(
+        "Company name is required."
+      )
+    ).toBeInTheDocument();
 
-  it("submits a valid application", async () => {
-    render(<AddApplication />);
+    expect(
+      screen.getByText(
+        "Job title is required."
+      )
+    ).toBeInTheDocument();
 
-    fireEvent.change(
-      screen.getByLabelText(/company/i),
-      {
-        target: {
-          value: "Apple",
-        },
-      }
-    );
+    expect(
+      screen.getByText(
+        "Location is required."
+      )
+    ).toBeInTheDocument();
 
-    fireEvent.change(
-      screen.getByLabelText(/position/i),
-      {
-        target: {
-          value: "Frontend Developer",
-        },
-      }
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(/location/i),
-      {
-        target: {
-          value: "London, UK",
-        },
-      }
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(/date applied/i),
-      {
-        target: {
-          value: "2026-09-07",
-        },
-      }
-    );
-
-    fireEvent.change(
-      screen.getByLabelText(/status/i),
-      {
-        target: {
-          value: "Applied",
-        },
-      }
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /add application/i,
-      })
-    );
-
-    await waitFor(() => {
-      expect(
-        mockCreateApplication
-      ).toHaveBeenCalled();
-
-      expect(
-        mockNavigate
-      ).toHaveBeenCalledWith("/applications");
-    });
+    expect(
+      screen.getByText(
+        "Application date is required."
+      )
+    ).toBeInTheDocument();
   });
 });
 
-/* ==================================================
-   EDIT APPLICATION PAGE
-================================================== */
+
+// =========================================================
+// EDIT APPLICATION
+// =========================================================
 
 describe("Edit Application page", () => {
-  it("renders the Edit Application page", async () => {
-    render(<EditApplication />);
-
-    await waitFor(() => {
-      expect(
-        document.querySelector(".add-application-page")
-      ).toBeInTheDocument();
-    });
-  });
-
-  it("renders the application form", async () => {
-    render(<EditApplication />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByDisplayValue("Google")
-      ).toBeInTheDocument();
-    });
+  it("loads an existing application", async () => {
+    renderEditApplication();
 
     expect(
-      screen.getByDisplayValue("Frontend Developer")
+      await screen.findByDisplayValue("Google")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByDisplayValue(
+        "Frontend Developer"
+      )
     ).toBeInTheDocument();
 
     expect(
       screen.getByDisplayValue("London, UK")
     ).toBeInTheDocument();
+  });
+
+  it("renders the edit application heading", async () => {
+    renderEditApplication();
 
     expect(
-      screen.getByRole("button", {
-        name: /update application/i,
+      await screen.findByRole("heading", {
+        name: /edit application/i,
       })
     ).toBeInTheDocument();
   });

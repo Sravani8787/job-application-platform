@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/applicationService";
+import { loginUser } from "../services/authService";
 
 function Login() {
   const navigate = useNavigate();

@@ -1,27 +1,65 @@
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/authService";
 
 function Settings() {
   const navigate = useNavigate();
 
+  const userEmail =
+    localStorage.getItem("userEmail") ||
+    "Not available";
+
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    navigate("/login");
+    logoutUser();
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
   return (
     <div className="settings-page">
       <div className="settings-heading">
-        <h1>Settings</h1>
-        <p>Manage your account and application settings.</p>
+        <div>
+          <h1>Settings</h1>
+
+          <p>
+            Manage your account and application
+            settings.
+          </p>
+        </div>
       </div>
 
-      <div className="settings-card">
-        <h2>Account</h2>
+      {/* Account */}
+      <section className="settings-card">
+        <div className="settings-card-header">
+          <h2>Account</h2>
+
+          <p>
+            Information about your JobTrack
+            account.
+          </p>
+        </div>
+
+        <div className="settings-item">
+          <div>
+            <h3>Email</h3>
+
+            <p className="settings-email">
+              {userEmail}
+            </p>
+          </div>
+        </div>
+
+        <div className="settings-divider" />
 
         <div className="settings-item">
           <div>
             <h3>Authentication</h3>
-            <p>Your account is currently logged in.</p>
+
+            <p>
+              Your account is currently
+              logged in.
+            </p>
           </div>
 
           <button
@@ -32,29 +70,66 @@ function Settings() {
             Logout
           </button>
         </div>
-      </div>
+      </section>
 
-      <div className="settings-card">
-        <h2>Application Preferences</h2>
+      {/* Application Preferences */}
+      <section className="settings-card">
+        <div className="settings-card-header">
+          <h2>
+            Application Preferences
+          </h2>
+
+          <p>
+            Manage your job application
+            tracking workspace.
+          </p>
+        </div>
 
         <div className="settings-item">
           <div>
-            <h3>Job Application Tracking</h3>
+            <h3>
+              Job Application Tracking
+            </h3>
+
             <p>
-              Manage and track your job applications from
-              the Applications page.
+              Manage and track your job
+              applications from the
+              Applications page.
             </p>
           </div>
 
           <button
             type="button"
             className="settings-action-button"
-            onClick={() => navigate("/applications")}
+            onClick={() =>
+              navigate("/applications")
+            }
           >
             View Applications
           </button>
         </div>
-      </div>
+      </section>
+
+      {/* Application Information */}
+      <section className="settings-card">
+        <div className="settings-card-header">
+          <h2>Application Information</h2>
+        </div>
+
+        <div className="settings-item">
+          <div>
+            <h3>JobTrack</h3>
+
+            <p>
+              Job Application Management
+            </p>
+          </div>
+
+          <span className="settings-version">
+            Portfolio Project
+          </span>
+        </div>
+      </section>
     </div>
   );
 }
