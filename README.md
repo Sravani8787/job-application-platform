@@ -1,243 +1,644 @@
-# Job Application Management Platform
+JobTrack – Job Application Tracker
 
-A responsive full-stack-style job application management platform built with React and TypeScript. The application allows users to securely access their account, manage job applications, track application statuses, and view application details through a clean and accessible dashboard.
+JobTrack is a web-based job application tracking platform designed to help users manage and monitor their job applications from one place.
 
-## 🚀 Live Project
+The application provides authentication, a dashboard with application statistics, application search and filtering, application creation and editing, detailed application views, and account settings.
 
-GitHub Repository:
+📌 Project Overview
 
-https://github.com/Sravani8787/job-application-platform
+Job searching often involves applying to multiple companies and keeping track of different stages such as Applied, Screening, Interview, Offer, and Rejected.
 
----
+JobTrack provides a centralized workspace where users can:
 
-## 📌 Project Overview
+Create and manage job applications
 
-The Job Application Management Platform helps users organise and track their job applications from a single interface.
+Search and filter applications
+
+Sort applications by date or company
+
+View detailed application information
+
+Edit existing applications
+
+Delete applications
+
+Track application statuses
+
+View application statistics on the dashboard
+
+Monitor upcoming interviews
+
+Calculate monthly application activity
+
+View offer conversion rate
+
+Manage account settings
+
+✨ Features
+
+🔐 Authentication
+
+User Login
+
+User Registration
+
+Email and password validation
+
+Password confirmation during registration
+
+Login error handling
+
+Registration success/error messages
+
+Logout functionality
+
+Protected application workflow
+
+📊 Dashboard
+
+The dashboard provides an overview of job application activity.
+
+It displays:
+
+Total Applications
+
+Applied
+
+Interviews
+
+Offers
+
+Rejected
+
+Applications This Month
+
+Offer Conversion
+
+Applications by Status
+
+Upcoming Interviews
+
+The dashboard calculates application statistics from the application's stored data.
+
+📋 Application Management
 
 Users can:
 
-- Register and log in
-- Access protected application pages
-- View application statistics
-- Add new job applications
-- Edit existing applications
-- View detailed application information
-- Delete applications
-- Search applications
-- Filter applications by status
-- Track recruiters and interview information
-- Manage account settings
-- Log out securely from the application
+Add a new application
 
-The project was developed with a focus on **TypeScript, reusable React components, state management, API separation, accessibility, testing, responsive design, and performance optimisation**.
+View an application
 
----
+Edit an application
 
-## ✨ Features
+Delete an application
 
-### 🔐 Authentication
+Search applications
 
-- User registration
-- User login
-- Logout functionality
-- Protected application routes
-- Authentication state stored locally for the current demo implementation
-- Duplicate email validation during registration
+Filter by status
 
-### 📊 Dashboard
+Filter by company
 
-The dashboard provides an overview of job application activity, including:
+Filter by location
 
-- Total applications
-- Interview count
-- Offers
-- Rejected applications
-- Applications submitted this month
-- Offer conversion information
+Filter by date applied
 
-### 💼 Application Management
+Sort by newest
 
-Users can:
+Sort by oldest
 
-- Create job applications
-- View applications
-- Edit applications
-- Delete applications
-- View individual application details
+Sort by company A–Z
 
-Application information includes:
+Sort by company Z–A
 
-- Company
-- Job title
-- Location
-- Job posting URL
-- Salary
-- Date applied
-- Application status
-- Recruiter name
-- Recruiter email
-- Interview date
-- Notes
+🏢 Application Information
 
-### 🔎 Search & Filtering
+Applications can contain information such as:
 
-- Search applications by relevant text
-- Filter applications by status
-- View application data in a responsive table
+Company
 
-### ⚙️ Settings
+Job Title
 
-The settings page provides:
+Location
 
-- Account information
-- Logged-in email
-- Logout functionality
-- Application workspace navigation
-- Application information
+Salary
 
-### 📱 Responsive Design
+Date Applied
 
-The interface is designed for:
+Application Status
 
-- Desktop
-- Tablet
-- Mobile
+Job Posting URL
 
-Responsive layouts are provided for the dashboard, applications table, forms, navigation, and application details.
+Recruiter Name
 
-### ♿ Accessibility
+Recruiter Email
 
-Accessibility considerations include:
+Interview Date
 
-- Keyboard navigation
-- Visible keyboard focus indicators
-- Semantic navigation
-- Accessible form labels
-- Validation error associations
-- `aria-invalid`
-- `aria-describedby`
-- `aria-live`
-- Accessible buttons and navigation
-- Decorative icons hidden from screen readers where appropriate
+Notes
 
-### ⚡ Performance
+⚙️ Settings
 
-Performance improvements include:
+The Settings page provides:
 
-- Route-based lazy loading
-- React `lazy()`
-- `Suspense`
-- Code splitting
-- Reduced initial JavaScript bundle size
+Account information
 
-The initial JavaScript bundle was reduced from approximately **453.91 kB to 311.77 kB** through route-based code splitting.
+Logged-in email
 
-### 🧪 Testing
+Authentication status
 
-The project uses:
+Logout functionality
 
-- Vitest
-- React Testing Library
-- Jest DOM
+Application tracking navigation
 
-Current automated test coverage includes:
+Application information
 
-- Login page
-- Registration page
-- Dashboard
-- Applications page
-- Application search
-- Application filtering
-- Add Application form
-- Form validation
-- Edit Application page
+🖥️ Application Pages
 
-Current test result:
+Page
 
-**18 / 18 tests passing**
+Description
 
----
+Login
 
-## 🛠️ Technology Stack
+User authentication
 
-### Frontend
+Register
 
-- React
-- TypeScript
-- React Router
-- React Hook Form
-- Zod
-- HTML
-- CSS
+New account registration
 
-### State Management
+Dashboard
 
-- Redux Toolkit
-- React Redux
+Application statistics and overview
 
-### API & Data
+Applications
 
-- Axios
-- JSON Server
+Search, filter, sort and manage applications
 
-### Testing
+Add Application
 
-- Vitest
-- React Testing Library
-- Jest DOM
+Create a new job application
 
-### Development Tools
+Edit Application
 
-- Vite
-- TypeScript
-- Oxlint
-- Git
-- GitHub
+Update an existing application
 
----
+Application Details
 
-## 🏗️ Project Architecture
+View complete application information
 
-```text
-src/
+Settings
+
+Account and application settings
+
+🛠️ Technology Stack
+
+Frontend
+
+React
+
+TypeScript
+
+React Router
+
+CSS
+
+State Management
+
+Redux
+
+Redux Toolkit
+
+React Redux
+
+Application Structure
+
+The project separates pages, components, services, state management and type definitions to keep the application organized and maintainable.
+
+🏗️ Application Architecture
+
+┌─────────────────────────────────────────────┐
+│                  JobTrack                   │
+│                                             │
+│              React + TypeScript             │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│               React Router                 │
+│                                             │
+│ Login / Register / Dashboard / Applications│
+│ Add / Edit / Details / Settings            │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│              Redux Store                   │
+│                                             │
+│          Applications State                │
+│          Loading / Error / Items           │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│              Service Layer                │
+│                                             │
+│              authService                  │
+│                                             │
+│       Authentication / API Operations      │
+└─────────────────────────────────────────────┘
+
+🔄 Application Management Flow
+
+                     User
+                       │
+                       ▼
+              ┌─────────────────┐
+              │    Dashboard    │
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │  Applications   │
+              └───────┬─────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+      Add           View          Search /
+   Application     Details        Filter
+        │             │
+        ▼             ▼
+      Save          Edit /
+      Data         Delete
+        │             │
+        └──────┬──────┘
+               ▼
+        Application State
+               │
+               ▼
+           Dashboard
+
+🔐 Authentication Flow
+
+                    Start
+                      │
+                      ▼
+              ┌───────────────┐
+              │ Login/Register│
+              └───────┬───────┘
+                      │
+             ┌────────┴────────┐
+             ▼                 ▼
+          Register            Login
+             │                 │
+             ▼                 ▼
+       Validate Fields    Validate Credentials
+             │                 │
+             ▼            ┌────┴────┐
+        Create Account    ▼         ▼
+                       Valid     Invalid
+                         │          │
+                         ▼          ▼
+                     Dashboard    Error
+
+📈 Dashboard Data Flow
+
+                Application Data
+                       │
+                       ▼
+                Redux Store
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       Status         Dates        Offers
+          │            │            │
+          ▼            ▼            ▼
+     Status Count   Monthly      Conversion
+                     Count          Rate
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+                   Dashboard
+
+📁 Project Structure
+
+job-application-platform/
 │
-├── components/
-│   └── forms/
-│       └── ApplicationForm.tsx
+├── src/
+│   ├── components/
+│   │   └── forms/
+│   │       └── ApplicationForm.tsx
+│   │
+│   ├── pages/
+│   │   ├── Login.tsx
+│   │   ├── Register.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── Applications.tsx
+│   │   ├── AddApplication.tsx
+│   │   ├── EditApplication.tsx
+│   │   ├── ApplicationDetails.tsx
+│   │   └── Settings.tsx
+│   │
+│   ├── services/
+│   │   └── authService.ts
+│   │
+│   ├── store/
+│   │   ├── applicationsSlice.ts
+│   │   └── hooks.ts
+│   │
+│   ├── types/
+│   │   └── Application.ts
+│   │
+│   └── styles/
+│       └── styling.css
 │
-├── layouts/
-│   └── MainLayout.tsx
-│
-├── pages/
-│   ├── Login.tsx
-│   ├── Register.tsx
-│   ├── Dashboard.tsx
-│   ├── Applications.tsx
-│   ├── AddApplication.tsx
-│   ├── EditApplication.tsx
-│   ├── ApplicationDetails.tsx
-│   └── Settings.tsx
-│
-├── services/
-│   ├── api.ts
-│   ├── applicationService.ts
-│   └── authService.ts
-│
-├── store/
-│   ├── applicationsSlice.ts
-│   ├── hooks.ts
-│   └── store.ts
-│
-├── types/
-│   └── Application.ts
-│
-├── styles/
-│   └── styling.css
-│
-├── test/
-│   └── pages.test.tsx
-│
-├── App.tsx
-├── App.css
-├── index.css
-└── main.tsx
+├── public/
+├── README.md
+├── package.json
+└── ...
+
+🚀 Getting Started
+
+Prerequisites
+
+Make sure the following are installed:
+
+Node.js
+
+npm
+
+Git
+
+Clone the Repository
+
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+
+Navigate into the project:
+
+cd job-application-platform
+
+Install Dependencies
+
+npm install
+
+Run the Development Server
+
+npm run dev
+
+Open the local URL shown in the terminal.
+
+🔄 Typical User Workflow
+
+1. Register an account
+        ↓
+2. Login
+        ↓
+3. Open Dashboard
+        ↓
+4. Add a job application
+        ↓
+5. Select/update application status
+        ↓
+6. View applications
+        ↓
+7. Search / Filter / Sort
+        ↓
+8. Open application details
+        ↓
+9. Edit application when required
+        ↓
+10. Track interviews and offers
+
+📊 Application Statuses
+
+JobTrack supports application stages including:
+
+Saved
+
+Applied
+
+Screening
+
+Interview
+
+Technical Interview
+
+Final Interview
+
+Offer
+
+Rejected
+
+Withdrawn
+
+These statuses are used by the application list and dashboard statistics.
+
+🧮 Dashboard Metrics
+
+Applications This Month
+
+The dashboard checks application dates and counts applications submitted during the current month and year.
+
+Offer Conversion
+
+The offer conversion rate is calculated using:
+
+Offer Conversion Rate =
+(Offers / Total Applications) × 100
+
+The displayed percentage is rounded to the nearest whole number.
+
+Interviews
+
+Interview statistics include:
+
+Interview
+
+Technical Interview
+
+Final Interview
+
+Upcoming interviews are identified using the scheduled interview date.
+
+🔎 Application Search and Filtering
+
+The Applications page supports searching across:
+
+Company
+
+Job Title
+
+Location
+
+Status
+
+Additional filters include:
+
+Status
+
+Company
+
+Location
+
+Date Applied
+
+Applications can also be sorted by:
+
+Newest First
+
+Oldest First
+
+Company A–Z
+
+Company Z–A
+
+🎨 UI Design
+
+The application uses a modern JobTrack visual theme with:
+
+Purple and blue gradients
+
+Glassmorphism-inspired cards
+
+Rounded components
+
+Compact dashboard cards
+
+Status badges
+
+Responsive layouts
+
+Hover and focus states
+
+Responsive tables
+
+Mobile-friendly forms
+
+Consistent navigation
+
+📱 Responsive Design
+
+The interface is designed to adapt to:
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+The dashboard, filters, forms, tables and settings sections adjust their layout at smaller screen sizes.
+
+🧪 Error and Loading States
+
+The application includes user feedback for:
+
+Loading applications
+
+Failed application requests
+
+Invalid login
+
+Registration validation errors
+
+Password mismatch
+
+Missing application records
+
+Delete operations
+
+Empty application results
+
+🔒 Authentication
+
+Authentication functionality is handled through the application's authentication service.
+
+The login page validates the email and password fields before attempting authentication.
+
+Successful login redirects the user to the Dashboard.
+
+Registration validates:
+
+Required fields
+
+Minimum password length
+
+Password confirmation
+
+After successful registration, the user is redirected to Login.
+
+🔧 Future Improvements
+
+Possible future enhancements include:
+
+Application reminders
+
+Email notifications
+
+Calendar integration
+
+Interview reminders
+
+Advanced analytics
+
+Application activity history
+
+Resume management
+
+Job description storage
+
+Export applications to CSV/PDF
+
+Dark mode
+
+Pagination
+
+Advanced dashboard charts
+
+Role-based authentication
+
+📚 Learning Outcomes
+
+This project demonstrates practical experience with:
+
+React component development
+
+TypeScript
+
+React Router
+
+Redux state management
+
+CRUD application workflows
+
+Form handling
+
+Client-side validation
+
+Search and filtering
+
+Sorting
+
+Data-driven dashboard components
+
+Responsive CSS
+
+Authentication workflows
+
+Application state management
+
+UI/UX design
+
+👨‍💻 Project
+
+Project Name: JobTrack – Job Application Tracker
+
+Type: Web Application
+
+Frontend: React + TypeScript
+
+State Management: Redux / Redux Toolkit
+
+Routing: React Router
+
+Styling: CSS
