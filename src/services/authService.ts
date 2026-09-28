@@ -23,6 +23,13 @@ export const loginUser = async (
     throw new Error("Invalid email or password");
   }
 
+  localStorage.setItem("isAuthenticated", "true");
+  localStorage.setItem("userEmail", user.email);
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
+
   return user;
 };
 
@@ -58,4 +65,5 @@ export const registerUser = async (
 export const logoutUser = (): void => {
   localStorage.removeItem("isAuthenticated");
   localStorage.removeItem("userEmail");
+  localStorage.removeItem("user");
 };

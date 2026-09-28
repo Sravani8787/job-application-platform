@@ -65,109 +65,158 @@ function Register() {
 
   return (
     <div className="register-page">
+
+      {/* Decorative background elements */}
+      <div className="register-background-shape register-shape-one"></div>
+      <div className="register-background-shape register-shape-two"></div>
+
+      {/* Register Card */}
       <div className="register-card">
-        <h1>JobTrack</h1>
 
-        <p className="register-subtitle">
-          Create your account
-        </p>
+        <div className="register-content">
 
-        <form onSubmit={handleSubmit}>
-          <div className="register-form-group">
-            <label htmlFor="email">
-              Email
-            </label>
+          {/* Logo */}
+          <div className="register-logo">
+            <div className="register-logo-icon">
+              J
+            </div>
 
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
-              disabled={loading}
-              autoComplete="email"
-            />
+            <span>JobTrack</span>
           </div>
 
-          <div className="register-form-group">
-            <label htmlFor="password">
-              Password
-            </label>
+          {/* Heading */}
+          <h1>Register</h1>
 
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+          <p className="register-subtitle">
+            Create your account to manage your job applications
+          </p>
+
+          <form onSubmit={handleSubmit} noValidate>
+
+            {/* Email */}
+            <div className="register-form-group">
+              <label htmlFor="email">
+                Email
+              </label>
+
+              <div className="register-input-wrapper">
+
+                <span className="register-input-icon">
+                  ✉
+                </span>
+
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(event) =>
+                    setEmail(event.target.value)
+                  }
+                  disabled={loading}
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="register-form-group">
+              <label htmlFor="password">
+                Password
+              </label>
+
+              <div className="register-input-wrapper">
+
+                <span className="register-input-icon">
+                  🔒
+                </span>
+
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(event.target.value)
+                  }
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="register-form-group">
+              <label htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+
+              <div className="register-input-wrapper">
+
+                <span className="register-input-icon">
+                  🔒
+                </span>
+
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(event) =>
+                    setConfirmPassword(event.target.value)
+                  }
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <p
+                className="register-error"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
+
+            {/* Success */}
+            {success && (
+              <p
+                className="register-success"
+                role="status"
+              >
+                {success}
+              </p>
+            )}
+
+            {/* Register Button */}
+            <button
+              type="submit"
+              className="register-button"
               disabled={loading}
-              autoComplete="new-password"
-            />
-          </div>
-
-          <div className="register-form-group">
-            <label htmlFor="confirmPassword">
-              Confirm Password
-            </label>
-
-            <input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(event) =>
-                setConfirmPassword(event.target.value)
-              }
-              disabled={loading}
-              autoComplete="new-password"
-            />
-          </div>
-
-          {error && (
-            <p
-              className="register-error"
-              role="alert"
             >
-              {error}
-            </p>
-          )}
+              {loading
+                ? "Creating account..."
+                : "Register"}
+            </button>
+          </form>
 
-          {success && (
-            <p
-              className="register-success"
-              role="status"
+          {/* Login Link */}
+          <p className="login-link-text">
+            Already have an account?
+
+            <button
+              type="button"
+              className="login-link"
+              onClick={() => navigate("/login")}
+              disabled={loading}
             >
-              {success}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="register-button"
-            disabled={loading}
-          >
-            {loading
-              ? "Creating account..."
-              : "Register"}
-          </button>
-        </form>
-
-        <p className="login-link-text">
-          Already have an account?{" "}
-
-          <button
-            type="button"
-            className="login-link"
-            onClick={() => navigate("/login")}
-            disabled={loading}
-          >
-            Login
-          </button>
-        </p>
+              Login
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

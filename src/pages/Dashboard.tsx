@@ -127,6 +127,7 @@ function Dashboard() {
     return (
       <div className="dashboard-page">
         <div className="page-loading">
+          <div className="dashboard-loading-spinner"></div>
           <p>Loading dashboard...</p>
         </div>
       </div>
@@ -137,6 +138,8 @@ function Dashboard() {
     return (
       <div className="dashboard-page">
         <div className="page-error">
+          <div className="page-error-icon">!</div>
+
           <h2>Unable to load dashboard</h2>
 
           <p>{error}</p>
@@ -154,8 +157,16 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
+
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
       <div className="dashboard-heading">
         <div>
+          <span className="dashboard-eyebrow">
+            JOB APPLICATION TRACKER
+          </span>
           <h1>Dashboard</h1>
 
           <p>
@@ -168,181 +179,385 @@ function Dashboard() {
           className="add-application-button"
           onClick={() => navigate("/applications/add")}
         >
-          + Add Application
+          <span className="button-plus">+</span>
+          Add Application
         </button>
       </div>
 
-      {/* Main Statistics */}
+
+      {/* =====================================================
+          MAIN STATISTICS
+          ===================================================== */}
+
       <div className="dashboard-stats">
-        <div className="stat-card">
-          <span className="stat-label">
-            Total Applications
-          </span>
 
-          <strong className="stat-value">
-            {stats.total}
-          </strong>
-        </div>
+        {/* Total */}
+        <div className="stat-card stat-total">
 
-        <div className="stat-card">
-          <span className="stat-label">
-            Applied
-          </span>
-
-          <strong className="stat-value">
-            {stats.applied}
-          </strong>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-label">
-            Interviews
-          </span>
-
-          <strong className="stat-value">
-            {stats.interviews}
-          </strong>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-label">
-            Offers
-          </span>
-
-          <strong className="stat-value">
-            {stats.offers}
-          </strong>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-label">
-            Rejected
-          </span>
-
-          <strong className="stat-value">
-            {stats.rejected}
-          </strong>
-        </div>
-      </div>
-
-      {/* Secondary Statistics */}
-      <div className="dashboard-secondary-stats">
-        <div className="dashboard-info-card">
-          <h3>Applications This Month</h3>
-
-          <strong>
-            {applicationsThisMonth}
-          </strong>
-        </div>
-
-        <div className="dashboard-info-card">
-          <h3>Offer Conversion</h3>
-
-          <strong>
-            {offerConversionRate}%
-          </strong>
-        </div>
-      </div>
-
-      {/* Status Breakdown */}
-      <section className="dashboard-section">
-        <div className="section-heading">
-          <div>
-            <h2>Applications by Status</h2>
-
-            <p>
-              Current distribution of your applications.
-            </p>
-          </div>
-        </div>
-
-        <div className="status-breakdown">
-          {statusCounts.map((item) => (
-            <div
-              className="status-breakdown-row"
-              key={item.status}
-            >
-              <span>
-                {item.status}
-              </span>
-
-              <strong>
-                {item.count}
-              </strong>
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ▣
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Upcoming Interviews */}
-      <section className="dashboard-section">
-        <div className="section-heading">
+            <span className="stat-trend">
+              All
+            </span>
+          </div>
+
           <div>
-            <h2>Upcoming Interviews</h2>
+            <span className="stat-label">
+              Total Applications
+            </span>
 
-            <p>
-              Your next scheduled interviews.
-            </p>
+            <strong className="stat-value">
+              {stats.total}
+            </strong>
           </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/applications")
-            }
-          >
-            View Applications
-          </button>
         </div>
 
-        {upcomingInterviews.length === 0 ? (
-          <div className="empty-state">
-            <p>
-              No upcoming interviews scheduled.
-            </p>
+
+        {/* Applied */}
+        <div className="stat-card stat-applied">
+
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ↗
+            </div>
+
+            <span className="stat-trend">
+              Active
+            </span>
           </div>
-        ) : (
-          <div className="upcoming-interviews">
-            {upcomingInterviews.map(
-              (application) => (
+
+          <div>
+            <span className="stat-label">
+              Applied
+            </span>
+
+            <strong className="stat-value">
+              {stats.applied}
+            </strong>
+          </div>
+
+        </div>
+
+
+        {/* Interviews */}
+        <div className="stat-card stat-interviews">
+
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ◷
+            </div>
+
+            <span className="stat-trend">
+              Scheduled
+            </span>
+          </div>
+
+          <div>
+            <span className="stat-label">
+              Interviews
+            </span>
+
+            <strong className="stat-value">
+              {stats.interviews}
+            </strong>
+          </div>
+
+        </div>
+
+
+        {/* Offers */}
+        <div className="stat-card stat-offers">
+
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ✓
+            </div>
+
+            <span className="stat-trend">
+              Received
+            </span>
+          </div>
+
+          <div>
+            <span className="stat-label">
+              Offers
+            </span>
+
+            <strong className="stat-value">
+              {stats.offers}
+            </strong>
+          </div>
+
+        </div>
+
+
+        {/* Rejected */}
+        <div className="stat-card stat-rejected">
+
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ×
+            </div>
+
+            <span className="stat-trend">
+              Closed
+            </span>
+          </div>
+
+          <div>
+            <span className="stat-label">
+              Rejected
+            </span>
+
+            <strong className="stat-value">
+              {stats.rejected}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+
+      {/* =====================================================
+          SECONDARY STATISTICS
+          ===================================================== */}
+
+      <div className="dashboard-secondary-stats">
+
+        <div className="dashboard-info-card">
+          <div className="info-card-content">
+            <span className="info-card-label">
+              Applications This Month
+            </span>
+
+            <strong>
+              {applicationsThisMonth}
+            </strong>
+          </div>
+
+          <div className="info-card-icon">
+            ▣
+          </div>
+
+        </div>
+
+        <div className="dashboard-info-card">
+          <div className="info-card-content">
+            <span className="info-card-label">
+              Offer Conversion
+            </span>
+
+            <strong>
+              {offerConversionRate}%
+            </strong>
+          </div>
+
+          <div className="conversion-circle">
+            {offerConversionRate}%
+          </div>
+        </div>
+      </div>
+
+
+      {/* =====================================================
+          MAIN DASHBOARD GRID
+          ===================================================== */}
+
+      <div className="dashboard-main-grid">
+
+
+        {/* ===================================================
+            STATUS BREAKDOWN
+            =================================================== */}
+
+        <section className="dashboard-section status-section">
+
+          <div className="section-heading">
+
+            <div>
+              <h2>
+                Applications by Status
+              </h2>
+
+              <p>
+                Current distribution of your applications.
+              </p>
+            </div>
+
+            <span className="section-count">
+              {applications.length} Total
+            </span>
+
+          </div>
+
+          <div className="status-breakdown">
+            {statusCounts.map((item) => {
+
+              const percentage =
+                stats.total > 0
+                  ? Math.round(
+                      (item.count / stats.total) * 100
+                    )
+                  : 0;
+
+              return (
                 <div
-                  className="interview-card"
-                  key={application.id}
+                  className="status-breakdown-row"
+                  key={item.status}
                 >
-                  <div>
-                    <strong>
-                      {application.company}
-                    </strong>
 
-                    <p>
-                      {application.jobTitle}
-                    </p>
-                  </div>
+                  <div className="status-row-info">
 
-                  <div>
-                    <span>
-                      {formatDate(
-                        application.interviewDate!
-                      )}
+                    <span
+                      className={`status-dot status-dot-${item.status
+                        .toLowerCase()
+                        .replaceAll(" ", "-")}`}
+                    ></span>
+
+                    <span className="status-name">
+                      {item.status}
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate(
-                          `/applications/${application.id}`
-                        )
-                      }
-                    >
-                      View
-                    </button>
                   </div>
+
+
+                  <div className="status-row-right">
+
+                    <div className="status-progress">
+                      <div
+                        className="status-progress-bar"
+                        style={{
+                          width: `${percentage}%`,
+                        }}
+                      ></div>
+                    </div>
+
+                    <strong>
+                      {item.count}
+                    </strong>
+
+                  </div>
+
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
-        )}
-      </section>
+        </section>
+
+
+        {/* ===================================================
+            UPCOMING INTERVIEWS
+            =================================================== */}
+
+        <section className="dashboard-section interviews-section">
+          <div className="section-heading">
+            <div>
+              <h2>Upcoming Interviews</h2>
+
+              <p>
+                Your next scheduled interviews.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="view-all-button"
+              onClick={() =>
+                navigate("/applications")
+              }
+            >
+              View All
+            </button>
+          </div>
+
+          {upcomingInterviews.length === 0 ? (
+            <div className="empty-state">
+
+              <div className="empty-state-icon">
+                ◷
+              </div>
+
+              <h3> No upcoming interviews</h3>
+
+              <p>
+                Your scheduled interviews will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="upcoming-interviews">
+              {upcomingInterviews.map(
+                (application) => (
+                  <div
+                    className="interview-card"
+                    key={application.id}
+                  >
+
+                    <div className="interview-date-box">
+
+                      <span>
+                        {new Date(
+                          application.interviewDate!
+                        ).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "2-digit",
+                          }
+                        )}
+                      </span>
+
+                      <small>
+                        {new Date(
+                          application.interviewDate!
+                        ).toLocaleDateString(
+                          "en-GB",
+                          {
+                            month: "short",
+                          }
+                        )}
+                      </small>
+
+                    </div>
+
+
+                    <div className="interview-details">
+
+                      <strong>
+                        {application.company}
+                      </strong>
+
+                      <p>
+                        {application.jobTitle}
+                      </p>
+                    </div>
+
+                    <div className="interview-action">
+                      <span>
+                        {formatDate(
+                          application.interviewDate!
+                        )}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate(
+                            `/applications/${application.id}`
+                          )
+                        }
+                      >
+                        View
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

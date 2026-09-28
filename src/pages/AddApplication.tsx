@@ -25,23 +25,68 @@ function AddApplication() {
 
   return (
     <div className="add-application-page">
+
+      {/* Decorative background */}
+      <div className="add-application-bg-shape add-application-bg-one"></div>
+      <div className="add-application-bg-shape add-application-bg-two"></div>
+
+      {/* Page Header */}
       <div className="add-application-heading">
-        <div>
-          <h1>Add Application</h1>
-          <p>Add a new job application to your tracker.</p>
+
+        <div className="add-application-title-wrapper">
+
+          <div className="add-application-icon">
+            +
+          </div>
+
+          <div>
+            <h1>Add Application</h1>
+
+            <p>Add a new job application to your tracker.</p>
+          </div>
+
         </div>
+
+        <button
+          type="button"
+          className="back-to-applications-button"
+          onClick={() => navigate("/applications")}
+          disabled={loading}
+        >
+          ← Applications
+        </button>
+
       </div>
 
+      {/* Form Card */}
       <div className="form-card">
-        <ApplicationForm
-          onSubmit={handleSubmit}
-          submitLabel={
-            loading ? "Adding Application..." : "Add Application"
-          }
-          loading={loading}
-          error={error}
-        />
 
+        <div className="form-card-header">
+
+          <div>
+            <h2>Application Details</h2>
+
+            <p>
+              Enter the details of the job application below.
+            </p>
+          </div>
+
+        </div>
+
+        <div className="application-form-wrapper">
+
+          <ApplicationForm
+            onSubmit={handleSubmit}
+            submitLabel={
+              loading ? "Adding Application..." : "Add Application"
+            }
+            loading={loading}
+            error={error}
+          />
+
+        </div>
+
+        {/* Form Actions */}
         <div className="form-actions">
           <button
             type="button"
